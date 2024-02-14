@@ -10,13 +10,15 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
-    public Text ScoreText;
+    public Text ScoreText, HighScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
+
+    private string playerName;
 
     
     // Start is called before the first frame update
@@ -36,6 +38,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        UpdateHighScore();
     }
 
     private void Update()
@@ -55,6 +59,13 @@ public class MainManager : MonoBehaviour
         }
         else if (m_GameOver)
         {
+            // check if player beat high score, then if player did overwrite this score
+            if(Persistance.Instance.isScoreBeated(m_Points))
+            {
+                Persistance.Instance.UpdateScore(m_Points);
+                UpdateHighScore();
+            }
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -72,5 +83,16 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+    }
+
+    public void UpdateHighScore()
+    {
+        if (Persistance.Instance != null)
+        {
+            HighScoreText.text = $"Best Score : {Persistance.Instance.PlayerName} : {Persistance.Instance.Score}";
+        } else
+        {
+            HighScoreText.text = "Best Score : : 0";
+        }
     }
 }
